@@ -90,7 +90,14 @@ export async function deleteMedication(id: string): Promise<void> {
 export async function getDoseHistory(): Promise<DoseHistory[]> {
   try {
     const data = await AsyncStorage.getItem(DOSE_HISTORY_KEY);
-    return data ? JSON.parse(data) : [];
+    if (!data) return [];
+    
+    const parsed = JSON.parse(data);
+    // Ensure all dose history entries have the 'taken' property
+    return parsed.map((dose: any) => ({
+      ...dose,
+      taken: dose.taken !== undefined ? dose.taken : true,
+    }));
   } catch (error) {
     console.error("Error getting dose history:", error);
     return [];
